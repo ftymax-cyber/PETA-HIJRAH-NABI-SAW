@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kronologi Perjalanan Hijrah Rasulullah SAW</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment-light: #fdf5e6;
+            --parchment-dark: #e3d1a8;
+            --ink: #4a3319;
+            --accent: #8b4513;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #2c1e16; /* Dark background behind the parchment */
+            color: var(--ink);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .parchment-container {
+            background: var(--parchment-light);
+            background-image: 
+                radial-gradient(var(--parchment-dark) 10%, transparent 20%),
+                radial-gradient(var(--parchment-dark) 10%, transparent 20%);
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+            box-shadow: 
+                inset 0 0 50px rgba(139, 69, 19, 0.3),
+                0 10px 30px rgba(0,0,0,0.5);
+            border: 8px solid #5c3a21;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .arabic-text {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+        }
+
+        .map-line {
+            stroke: var(--accent);
+            stroke-width: 4;
+            stroke-dasharray: 8 8;
+            fill: none;
+            stroke-linecap: round;
+        }
+
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: #fff9f0;
+            border: 2px solid var(--accent);
+            transform: scale(0.9) translateY(20px);
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1) translateY(0);
+        }
+
+        .timeline-node {
+            transition: all 0.3s ease;
+        }
+        .timeline-node.active {
+            background-color: var(--accent);
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+        }
+        .timeline-node.completed {
+            background-color: #6b4226;
+        }
+
+        /* Marker Pulse Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .marker-pulse {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="parchment-container w-full max-w-4xl mx-auto flex flex-col h-full md:h-[90vh]">
+        
+        <!-- Header -->
+        <header class="text-center p-4 border-b-2 border-[#8b4513] border-opacity-30 bg-[#fdf5e6] bg-opacity-80 relative z-10">
+            <h1 class="text-2xl md:text-3xl font-bold text-[#5c3a21] uppercase tracking-wide">Kronologi Hijrah</h1>
+            <p class="text-sm md:text-base font-semibold mt-1">Perjalanan Rasulullah SAW & Saidina Abu Bakar RA</p>
+        </header>
+
+        <!-- Main Map Area -->
+        <div class="relative flex-grow w-full overflow-hidden flex items-center justify-center bg-[#fdf5e6]">
+            <!-- SVG Map -->
+            <svg id="journey-map" viewBox="0 0 800 1000" class="w-full h-full max-h-[65vh] drop-shadow-md">
+                <!-- Red Sea -->
+                <path d="M 0 0 L 120 0 C 120 300, 180 700, 80 1000 L 0 1000 Z" fill="#a8cdd8" opacity="0.6"/>
+                <text x="30" y="500" class="text-xs font-semibold fill-blue-800 opacity-50" transform="rotate(-90 30,500)">LAUT MERAH</text>
+                
+                <!-- Terrain Decorations (Mountains & Sand) -->
+                <g fill="#d4c5b0" opacity="0.5">
+                    <path d="M 600 200 L 630 150 L 660 200 Z" />
+                    <path d="M 640 220 L 680 160 L 720 220 Z" />
+                    <path d="M 550 800 L 590 730 L 630 800 Z" />
+                    <path d="M 600 850 L 650 780 L 700 850 Z" />
+                    <!-- Sand dunes -->
+                    <path d="M 250 400 Q 300 380 350 410" stroke="#d4c5b0" stroke-width="2" fill="none"/>
+                    <path d="M 300 600 Q 350 580 400 610" stroke="#d4c5b0" stroke-width="2" fill="none"/>
+                </g>
+
+                <!-- Journey Route (Dotted Line) -->
+                <!-- Path: Makkah(400,800) -> Thur(350,880) -> Coastal Curve -> Quba(380,300) -> Madinah(400,180) -->
+                <path id="visual-path" d="M 400 800 L 350 880 C 150 880, 150 300, 380 300 L 400 180" class="map-line" />
+
+                <!-- Location Markers -->
+                <g id="locations-group"></g>
+
+                <!-- Animated Travel Marker -->
+                <g id="travel-marker" transform="translate(400, 800)" style="display: none;">
+                    <circle cx="0" cy="0" r="14" fill="#ffcc00" opacity="0.5" class="marker-pulse"/>
+                    <path d="M 0 0 C -12 -18 -18 -30 -18 -42 A 18 18 0 0 1 18 -42 C 18 -30 12 -18 0 0" fill="#a0522d" stroke="#5c3a21" stroke-width="2"/>
+                    <circle cx="0" cy="-42" r="6" fill="#fff"/>
+                </g>
+            </svg>
+        </div>
+
+        <!-- Controls -->
+        <div class="bg-[#e3d1a8] p-3 flex flex-wrap justify-center gap-2 border-t-2 border-[#8b4513] border-opacity-30 relative z-10">
+            <button id="btn-mula" class="btn bg-[#5c3a21] text-white px-4 py-2 rounded-md font-semibold shadow text-sm">Mula Perjalanan</button>
+            <button id="btn-jeda" class="btn bg-yellow-700 text-white px-4 py-2 rounded-md font-semibold shadow text-sm hidden">Jeda</button>
+            <button id="btn-sambung" class="btn bg-green-700 text-white px-4 py-2 rounded-md font-semibold shadow text-sm hidden">Sambung</button>
+            <button id="btn-ulang" class="btn bg-gray-700 text-white px-4 py-2 rounded-md font-semibold shadow text-sm">Ulang Semula</button>
+        </div>
+
+        <!-- Timeline -->
+        <div class="bg-[#fdf5e6] p-4 border-t border-[#8b4513] border-opacity-20 relative z-10">
+            <div class="flex justify-between items-center relative max-w-2xl mx-auto">
+                <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-[#d4c5b0] z-0"></div>
+                <!-- Timeline Nodes will be injected here via JS -->
+                <div id="timeline-container" class="relative z-10 w-full flex justify-between"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Location Information Modal -->
+    <div id="info-modal" class="modal-overlay fixed inset-0 z-50 flex justify-center items-center p-4">
+        <div class="modal-content w-full max-w-md rounded-xl p-6 text-center relative">
+            <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-[#5c3a21] text-white rounded-full p-4 border-4 border-[#fff9f0] shadow-lg">
+                <span id="modal-icon" class="text-3xl block"></span>
+            </div>
+            
+            <h2 id="modal-ar" class="arabic-text text-3xl font-bold text-[#8b4513] mt-6 mb-1"></h2>
+            <h3 id="modal-my" class="text-xl font-bold text-[#5c3a21] mb-4"></h3>
+            
+            <div class="bg-[#f4ecd8] rounded-lg p-4 mb-6 shadow-inner text-sm md:text-base leading-relaxed border border-[#e3d1a8]">
+                <p id="modal-desc"></p>
+            </div>
+            
+            <div class="flex justify-between gap-3">
+                <button id="btn-kembali" class="btn flex-1 bg-gray-300 text-gray-800 py-2 rounded font-semibold hidden">Kembali</button>
+                <button id="btn-seterusnya" class="btn flex-1 bg-[#5c3a21] text-white py-2 rounded font-semibold">Seterusnya</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conclusion Modal -->
+    <div id="conclusion-modal" class="modal-overlay fixed inset-0 z-50 flex justify-center items-center p-4">
+        <div class="modal-content w-full max-w-lg rounded-xl p-6 text-center relative bg-[#fdf5e6]">
+            <h2 class="text-2xl font-bold text-[#5c3a21] mb-4 border-b-2 border-[#8b4513] pb-2">Pengajaran daripada Perjalanan Hijrah</h2>
+            <ul class="text-left space-y-3 mb-6 text-sm md:text-base">
+                <li class="flex items-start">
+                    <span class="text-green-700 mr-2 text-xl">✓</span>
+                    <p><strong>Kesabaran & Ketabahan:</strong> Menghadapi pelbagai cabaran dan ancaman musuh dengan tenang.</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-700 mr-2 text-xl">✓</span>
+                    <p><strong>Tawakal kepada Allah:</strong> Setelah berusaha merancang strategi, Rasulullah SAW berserah sepenuhnya kepada perlindungan Allah.</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-700 mr-2 text-xl">✓</span>
+                    <p><strong>Keberanian:</strong> Saidina Abu Bakar RA menemani baginda walaupun mengetahui risikonya sangat tinggi.</p>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-green-700 mr-2 text-xl">✓</span>
+                    <p><strong>Persaudaraan Islam:</strong> Sambutan golongan Ansar membuktikan ukhuwah Islam yang sangat teguh dan ikhlas.</p>
+                </li>
+            </ul>
+            <button id="btn-tutup-pengajaran" class="btn w-full bg-[#5c3a21] text-white py-2 rounded font-semibold">Tutup & Tamat</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Data Definitions ---
+        const locations = [
+            { 
+                id: "makkah", name: "Makkah", ar: "مَكَّةُ الْمُكَرَّمَةُ", 
+                x: 400, y: 800, icon: "🕋",
+                desc: "Perjalanan hijrah Rasulullah SAW bermula dari kota Makkah. Baginda keluar dari rumah pada waktu malam untuk mengelakkan kepungan dan ancaman pembunuhan daripada kafir Quraisy."
+            },
+            { 
+                id: "thur", name: "Gua Thur", ar: "غَارُ ثَوْرٍ", 
+                x: 350, y: 880, icon: "⛰️",
+                desc: "Rasulullah SAW bersama Saidina Abu Bakar RA bersembunyi di dalam gua ini selama tiga malam. Di sinilah terserlah kehebatan tawakal dan bantuan perlindungan daripada Allah SWT."
+            },
+            { 
+                id: "quba", name: "Quba", ar: "قُبَاءُ", 
+                x: 380, y: 300, icon: "🕌",
+                desc: "Setelah menempuh perjalanan jauh melalui laluan pantai barat yang mencabar, baginda tiba di Quba. Di sini, baginda membina Masjid Quba, masjid yang pertama dibina dalam sejarah Islam."
+            },
+            { 
+                id: "madinah", name: "Madinah", ar: "الْمَدِينَةُ الْمُنَوَّرَةُ", 
+                x: 400, y: 180, icon: "🌴",
+                desc: "Rasulullah SAW akhirnya tiba di Madinah dan disambut dengan penuh kegembiraan, selawat dan nasyid 'Tala'al Badru Alayna' oleh kaum Ansar. Bermulalah pembentukan negara Islam yang pertama."
+            }
+        ];
+
+        // Define the path segments for animation
+        const segments = [
+            { type: 'line', p0: {x:400, y:800}, p1: {x:350, y:880}, frames: 80 },
+            { type: 'bezier', p0: {x:350, y:880}, p1: {x:150, y:880}, p2: {x:150, y:300}, p3: {x:380, y:300}, frames: 300 },
+            { type: 'line', p0: {x:380, y:300}, p1: {x:400, y:180}, frames: 100 }
+        ];
+
+        // --- State Variables ---
+        let currentSegment = 0; // 0, 1, 2
+        let animProgress = 0;   // 0.0 to 1.0
+        let isAnimating = false;
+        let isPaused = false;
+        let animationFrameId = null;
+        let currentLocationIndex = 0;
+        let unlockedLocations = [0];
+
+        // --- DOM Elements ---
+        const mapGroup = document.getElementById('locations-group');
+        const travelMarker = document.getElementById('travel-marker');
+        const timelineContainer = document.getElementById('timeline-container');
+        
+        const btnMula = document.getElementById('btn-mula');
+        const btnJeda = document.getElementById('btn-jeda');
+        const btnSambung = document.getElementById('btn-sambung');
+        const btnUlang = document.getElementById('btn-ulang');
+        
+        const infoModal = document.getElementById('info-modal');
+        const conclusionModal = document.getElementById('conclusion-modal');
+        const modalIcon = document.getElementById('modal-icon');
+        const modalAr = document.getElementById('modal-ar');
+        const modalMy = document.getElementById('modal-my');
+        const modalDesc = document.getElementById('modal-desc');
+        const btnSeterusnya = document.getElementById('btn-seterusnya');
+        const btnKembali = document.getElementById('btn-kembali');
+        const btnTutupPengajaran = document.getElementById('btn-tutup-pengajaran');
+
+        // --- Initialization ---
+        function init() {
+            drawLocations();
+            buildTimeline();
+            updateTravelMarker(locations[0].x, locations[0].y);
+        }
+
+        function drawLocations() {
+            locations.forEach((loc, index) => {
+                // Circle point
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', loc.x);
+                circle.setAttribute('cy', loc.y);
+                circle.setAttribute('r', '8');
+                circle.setAttribute('fill', '#fff');
+                circle.setAttribute('stroke', '#8b4513');
+                circle.setAttribute('stroke-width', '3');
+
+                // Label Background
+                const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                bg.setAttribute('x', loc.x + 15);
+                bg.setAttribute('y', loc.y - 12);
+                bg.setAttribute('width', '80');
+                bg.setAttribute('height', '24');
+                bg.setAttribute('rx', '4');
+                bg.setAttribute('fill', 'rgba(253, 245, 230, 0.8)');
+                bg.setAttribute('stroke', '#d4c5b0');
+
+                // Text Label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', loc.x + 20);
+                text.setAttribute('y', loc.y + 4);
+                text.setAttribute('font-size', '14');
+                text.setAttribute('font-weight', 'bold');
+                text.setAttribute('fill', '#4a3319');
+                text.textContent = loc.name;
+
+                mapGroup.appendChild(circle);
+                mapGroup.appendChild(bg);
+                mapGroup.appendChild(text);
+            });
+        }
+
+        function buildTimeline() {
+            timelineContainer.innerHTML = '';
+            locations.forEach((loc, index) => {
+                const nodeContainer = document.createElement('div');
+                nodeContainer.className = 'flex flex-col items-center cursor-pointer';
+                nodeContainer.onclick = () => jumpToLocation(index);
+
+                const circle = document.createElement('div');
+                circle.id = `timeline-node-${index}`;
+                circle.className = `w-6 h-6 md:w-8 md:h-8 rounded-full border-4 border-[#fdf5e6] bg-[#d4c5b0] timeline-node flex items-center justify-center text-xs text-white font-bold`;
+                circle.textContent = index + 1;
+
+                const label = document.createElement('span');
+                label.className = 'mt-2 text-xs md:text-sm font-semibold text-[#5c3a21]';
+                label.textContent = loc.name;
+
+                nodeContainer.appendChild(circle);
+                nodeContainer.appendChild(label);
+                timelineContainer.appendChild(nodeContainer);
+            });
+            updateTimelineUI();
+        }
+
+        function updateTimelineUI() {
+            locations.forEach((_, index) => {
+                const node = document.getElementById(`timeline-node-${index}`);
+                node.classList.remove('active', 'completed');
+                
+                if (index === currentLocationIndex) {
+                    node.classList.add('active');
+                } else if (unlockedLocations.includes(index)) {
+                    node.classList.add('completed');
+                }
+            });
+        }
+
+        // --- Animation Logic ---
+        function updateTravelMarker(x, y) {
+            travelMarker.style.display = 'block';
+            travelMarker.setAttribute('transform', `translate(${x}, ${y})`);
+        }
+
+        function animateLoop() {
+            if (!isAnimating || isPaused) return;
+
+            const segment = segments[currentSegment];
+            animProgress += 1 / segment.frames;
+
+            if (animProgress >= 1) {
+                // Reached destination
+                animProgress = 1;
+                isAnimating = false;
+                calculateAndSetPosition();
+                
+                currentLocationIndex = currentSegment + 1;
+                if (!unlockedLocations.includes(currentLocationIndex)) {
+                    unlockedLocations.push(currentLocationIndex);
+                }
+                
+                updateTimelineUI();
+                syncButtons();
+                setTimeout(() => openModal(currentLocationIndex), 300); // Slight delay before popup
+                return;
+            }
+
+            calculateAndSetPosition();
+            animationFrameId = requestAnimationFrame(animateLoop);
+        }
+
+        function calculateAndSetPosition() {
+            const segment = segments[currentSegment];
+            let x, y;
+            const t = animProgress;
+
+            if (segment.type === 'line') {
+                x = segment.p0.x + (segment.p1.x - segment.p0.x) * t;
+                y = segment.p0.y + (segment.p1.y - segment.p0.y) * t;
+            } else if (segment.type === 'bezier') {
+                const mt = 1 - t;
+                x = mt*mt*mt*segment.p0.x + 3*mt*mt*t*segment.p1.x + 3*mt*t*t*segment.p2.x + t*t*t*segment.p3.x;
+                y = mt*mt*mt*segment.p0.y + 3*mt*mt*t*segment.p1.y + 3*mt*t*t*segment.p2.y + t*t*t*segment.p3.y;
+            }
+            updateTravelMarker(x, y);
+        }
+
+        // --- Interactivity & Controls ---
+        function startJourney() {
+            if (currentLocationIndex === 0 && !isAnimating) {
+                openModal(0); // Show Makkah first before moving
+                btnMula.style.display = 'none';
+            }
+        }
+
+        function moveNextSegment() {
+            if (currentLocationIndex < 3 && !isAnimating) {
+                currentSegment = currentLocationIndex;
+                animProgress = 0;
+                isAnimating = true;
+                isPaused = false;
+                syncButtons();
+                animateLoop();
+            }
+        }
+
+        function pauseJourney() {
+            if (isAnimating) {
+                isPaused = true;
+                syncButtons();
+            }
+        }
+
+        function resumeJourney() {
+            if (isAnimating && isPaused) {
+                isPaused = false;
+                syncButtons();
+                animateLoop();
+            }
+        }
+
+        function restartJourney() {
+            cancelAnimationFrame(animationFrameId);
+            currentSegment = 0;
+            animProgress = 0;
+            isAnimating = false;
+            isPaused = false;
+            currentLocationIndex = 0;
+            unlockedLocations = [0];
+            updateTravelMarker(locations[0].x, locations[0].y);
+            updateTimelineUI();
+            
+            btnMula.style.display = 'block';
+            btnJeda.style.display = 'none';
+            btnSambung.style.display = 'none';
+        }
+
+        function syncButtons() {
+            if (isAnimating) {
+                if (isPaused) {
+                    btnJeda.style.display = 'none';
+                    btnSambung.style.display = 'block';
+                } else {
+                    btnJeda.style.display = 'block';
+                    btnSambung.style.display = 'none';
+                }
+                btnMula.style.display = 'none';
+            } else {
+                btnJeda.style.display = 'none';
+                btnSambung.style.display = 'none';
+                if(currentLocationIndex === 0) btnMula.style.display = 'block';
+            }
+        }
+
+        function jumpToLocation(index) {
+            if (unlockedLocations.includes(index)) {
+                // Cancel any ongoing animation safely
+                cancelAnimationFrame(animationFrameId);
+                isAnimating = false;
+                isPaused = false;
+                
+                currentLocationIndex = index;
+                updateTravelMarker(locations[index].x, locations[index].y);
+                updateTimelineUI();
+                syncButtons();
+                openModal(index);
+            }
+        }
+
+        // --- Modals ---
+        function openModal(index) {
+            const loc = locations[index];
+            modalIcon.textContent = loc.icon;
+            modalAr.textContent = loc.ar;
+            modalMy.textContent = loc.name;
+            modalDesc.textContent = loc.desc;
+
+            // Configure Buttons inside Modal
+            if (index > 0) {
+                btnKembali.style.display = 'block';
+                btnKembali.onclick = () => {
+                    closeModal();
+                    jumpToLocation(index - 1);
+                };
+            } else {
+                btnKembali.style.display = 'none';
+            }
+
+            if (index < 3) {
+                btnSeterusnya.textContent = "Seterusnya";
+                btnSeterusnya.onclick = () => {
+                    closeModal();
+                    moveNextSegment();
+                };
+            } else {
+                btnSeterusnya.textContent = "Pengajaran Hijrah";
+                btnSeterusnya.onclick = () => {
+                    closeModal();
+                    setTimeout(() => {
+                        conclusionModal.classList.add('active');
+                    }, 300);
+                };
+            }
+
+            infoModal.classList.add('active');
+        }
+
+        function closeModal() {
+            infoModal.classList.remove('active');
+        }
+
+        // --- Event Listeners ---
+        btnMula.addEventListener('click', startJourney);
+        btnJeda.addEventListener('click', pauseJourney);
+        btnSambung.addEventListener('click', resumeJourney);
+        btnUlang.addEventListener('click', restartJourney);
+        
+        btnTutupPengajaran.addEventListener('click', () => {
+            conclusionModal.classList.remove('active');
+        });
+
+        // Run Init
+        window.onload = init;
+
+    </script>
+</body>
+</html>
